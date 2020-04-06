@@ -1,24 +1,47 @@
-import React from 'react';
+import React, {useState} from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+
+
+const getData = () => {
+  return fetch(`https://api.spotify.com/v1/artists?ids=0oSGxfWSnnOXhD2fKuz2Gy,3dBVyJ7JuOMt4GE9607Qin`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${accesToken}`
+    }
+  })
+  .then(response => response.json())
+}
+
 function App() {
+  const [artistData, updateArtistData] = useState([])
+  const [value, updateInputValue] = useState("")
+  
+  const handleClick = () => {
+    getData().then(({artists}) => {updateArtistData(artists)})
+  }
+
+  const handleChange = (e) => {
+    updateInputValue(e.target.value)
+    const filteredData = artistData.filter(data => data.name.includes(e.target.value))
+    updateArtistData(filteredData)
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          Spotify artist data
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
+      <button onClick={handleClick}>Get Spotigy Data</button>
+      <ul>
+        {
+          artistData ? artistData.map(item => <li key={item.name}>{item.name}</li>) : null
+        }
+      </ul>
+      <input type="text" value={value} onChange={(e) => handleChange(e)} placeholder="search"/>
     </div>
   );
 }
